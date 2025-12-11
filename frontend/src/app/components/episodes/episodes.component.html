@@ -1,22 +1,57 @@
 <section>
   <h2>Episodes (page {{ page() }} / {{ totalPages() }})</h2>
 
+  <!-- Filtros -->
+  <div style="margin-bottom: 1rem;">
+    <input
+      type="text"
+      placeholder="Buscar por nombre"
+      [ngModel]="filterName()"
+      (ngModelChange)="filterName.set($event)"
+    />
+    <input
+      type="text"
+      placeholder="Buscar por temporada (S01, S02...)"
+      [ngModel]="filterSeason()"
+      (ngModelChange)="filterSeason.set($event)"
+    />
+    <input
+      type="text"
+      placeholder="Buscar por fecha (December 2, 2013)"
+      [ngModel]="filterAirDate()"
+      (ngModelChange)="filterAirDate.set($event)"
+    />
+    <input
+      type="text"
+      placeholder="Buscar por personaje"
+      [ngModel]="filterCharacter()"
+      (ngModelChange)="filterCharacter.set($event)"
+    />
+  </div>
+
+  <!-- Loading -->
   <div *ngIf="loading(); else content">Loading...</div>
 
   <ng-template #content>
+    <!-- Error -->
     <div *ngIf="error(); else list">
       <p>{{ error() }}</p>
     </div>
 
+    <!-- Lista de episodios -->
     <ng-template #list>
       <ul>
-        <li *ngFor="let e of episodes()">
+        <li *ngFor="let e of filteredEpisodes">
           <strong>{{ e.id }} — {{ e.name }}</strong>
           <div>{{ e.episode }} — {{ e.airDate }}</div>
+          <div *ngIf="e.characters?.length">
+          Characters: {{ e.characters?.join(', ') || 'N/A' }}
+          </div>
         </li>
       </ul>
 
-      <div>
+      <!-- Paginación -->
+      <div style="margin-top: 1rem;">
         <button (click)="prev()" [disabled]="page() <= 1">Prev</button>
         <button (click)="next()" [disabled]="page() >= totalPages()">Next</button>
       </div>
