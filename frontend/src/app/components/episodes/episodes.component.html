@@ -1,0 +1,25 @@
+<section>
+  <h2>Episodes (page {{ page() }} / {{ totalPages() }})</h2>
+
+  <div *ngIf="loading(); else content">Loading...</div>
+
+  <ng-template #content>
+    <div *ngIf="error(); else list">
+      <p>{{ error() }}</p>
+    </div>
+
+    <ng-template #list>
+      <ul>
+        <li *ngFor="let e of episodes()">
+          <strong>{{ e.id }} — {{ e.name }}</strong>
+          <div>{{ e.episode }} — {{ e.airDate }}</div>
+        </li>
+      </ul>
+
+      <div>
+        <button (click)="prev()" [disabled]="page() <= 1">Prev</button>
+        <button (click)="next()" [disabled]="page() >= totalPages()">Next</button>
+      </div>
+    </ng-template>
+  </ng-template>
+</section>

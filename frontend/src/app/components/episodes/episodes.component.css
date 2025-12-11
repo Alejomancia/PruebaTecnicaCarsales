@@ -1,0 +1,6 @@
+/* CSS simple, sin frameworks */
+section { padding: 1rem; }
+ul { list-style: none; padding: 0; }
+li { margin-bottom: 0.75rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
+button { margin: 0.25rem; padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid #ccc; background: white; }
+button[disabled] { opacity: 0.5; cursor: not-allowed; }
