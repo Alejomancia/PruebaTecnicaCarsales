@@ -41,6 +41,17 @@ export class EpisodesComponent {
   filterAirDate = signal('');
   filterCharacter = signal('');
 
+  // Temporadas disponibles para el combo
+  seasons = [
+    { label: 'Todas', value: '' },
+    { label: 'Temporada 1', value: 'S01' },
+    { label: 'Temporada 2', value: 'S02' },
+    { label: 'Temporada 3', value: 'S03' },
+    { label: 'Temporada 4', value: 'S04' },
+    { label: 'Temporada 5', value: 'S05' }
+  ];
+
+
   constructor(
     private episodesService: EpisodesService,
     private charactersService: CharactersService
@@ -99,15 +110,18 @@ export class EpisodesComponent {
 
   prev() {
     if (this.page() > 1) {
+      this.scrollToTop();
       this.load(this.page() - 1);
     }
   }
 
   next() {
     if (this.page() < this.totalPages()) {
+      this.scrollToTop();
       this.load(this.page() + 1);
     }
   }
+
 
   /**
    * Limpia todos los filtros de búsqueda
@@ -140,6 +154,18 @@ export class EpisodesComponent {
       year: 'numeric'
     });
   }
+
+  /**
+   * Hace scroll suave hacia el inicio de la página
+   * Se usa al cambiar de página para mejorar la experiencia de usuario
+   */
+  scrollToTop(): void {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+
 
 
 

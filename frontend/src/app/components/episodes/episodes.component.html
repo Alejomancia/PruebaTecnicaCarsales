@@ -20,13 +20,14 @@
       (ngModelChange)="filterName.set($event)"
     />
 
-    <input
-      type="text"
-      placeholder="Buscar por temporada (S01, S02...)"
+    <select
       [disabled]="loading()"
       [ngModel]="filterSeason()"
-      (ngModelChange)="filterSeason.set($event)"
-    />
+      (ngModelChange)="filterSeason.set($event)">
+      <option *ngFor="let s of seasons" [value]="s.value">
+        {{ s.label }}
+      </option>
+    </select>
 
     <input
       type="text"
@@ -43,10 +44,9 @@
       [ngModel]="filterCharacter()"
       (ngModelChange)="filterCharacter.set($event)"
     />
-
   </div>
 
-  <!-- Botón limpiar filtros -->
+  <!-- ACCIONES -->
   <div class="filters-actions">
     <button
       type="button"
@@ -57,89 +57,83 @@
   </div>
 
   <!-- ========================= -->
-  <!-- ESTADO DE CARGA -->
+  <!-- BLOQUES MODERNOS ANGULAR -->
   <!-- ========================= -->
-  <div *ngIf="loading()" class="loading">
-    Cargando episodios...
-  </div>
 
-  <!-- ========================= -->
-  <!-- MENSAJE DE ERROR -->
-  <!-- ========================= -->
-  <app-error
-    *ngIf="error()"
-    [mensaje]="error()">
-  </app-error>
+  @defer {
 
-  <!-- ========================= -->
-  <!-- SIN RESULTADOS -->
-  <!-- ========================= -->
-  <div
-    *ngIf="!loading() && !error() && filteredEpisodes.length === 0"
-    class="no-results">
-    No se encontraron episodios con los filtros aplicados.
-  </div>
+    <!-- ERROR -->
+    @if (error()) {
+      <app-error [mensaje]="error()"></app-error>
+    }
 
-  <!-- ========================= -->
-  <!-- LISTA DE EPISODIOS -->
-  <!-- ========================= -->
-  <ul *ngIf="filteredEpisodes.length > 0">
-
-    <li *ngFor="let e of filteredEpisodes" class="episode-card">
-
-      <h3>{{ e.name }}</h3>
-
-      <p class="episode-info">
-        {{ e.episode }} — {{ formatFecha(e.airDate) }}
-      </p>
-
-      <!-- ========================= -->
-      <!-- PERSONAJES -->
-      <!-- ========================= -->
-      <div
-        *ngIf="e.characters?.length"
-        class="characters-container">
-
-        <h4>Personajes</h4>
-
-        <div class="characters-grid">
-
-          <div
-            class="character-card"
-            *ngFor="let c of e.characters">
-
-            <img
-              [src]="c.image"
-              [alt]="c.name"
-            />
-
-            <span>{{ c.name }}</span>
-
-          </div>
-        </div>
+    <!-- SIN RESULTADOS -->
+    @if (!error() && filteredEpisodes.length === 0) {
+      <div class="no-results">
+        No se encontraron episodios con los filtros aplicados.
       </div>
+    }
 
-    </li>
+    <!-- LISTA DE EPISODIOS -->
+    @if (filteredEpisodes.length > 0) {
+      <ul>
 
-  </ul>
+        @for (e of filteredEpisodes; track e.id) {
+          <li class="episode-card">
 
-  <!-- ========================= -->
-  <!-- PAGINACIÓN -->
-  <!-- ========================= -->
-  <div class="pagination">
+            <h3>{{ e.name }}</h3>
 
-    <button
-      (click)="prev()"
-      [disabled]="page() <= 1 || loading()">
-      Anterior
-    </button>
+            <p class="episode-info">
+              {{ e.episode }} — {{ formatFecha(e.airDate) }}
+            </p>
 
-    <button
-      (click)="next()"
-      [disabled]="page() >= totalPages() || loading()">
-      Siguiente
-    </button>
+            <!-- PERSONAJES -->
+            @if (e.characters?.length) {
+              <div class="characters-container">
+                <h4>Personajes</h4>
 
-  </div>
+                <div class="characters-grid">
+                  @for (c of e.characters; track c.id) {
+                    <div class="character-card">
+                      <img [src]="c.image" [alt]="c.name" />
+                      <span>{{ c.name }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+          </li>
+        }
+
+      </ul>
+    }
+
+    <!-- PAGINACIÓN -->
+    <div class="pagination">
+      <button
+        (click)="prev()"
+        [disabled]="page() <= 1 || loading()">
+        Anterior
+      </button>
+
+      <button
+        (click)="next()"
+        [disabled]="page() >= totalPages() || loading()">
+        Siguiente
+      </button>
+    </div>
+
+  }
+  @loading {
+    <!-- Estado de carga usando defer -->
+    <div class="loading">
+      Cargando episodios...
+    </div>
+  }
+  @error {
+    <!-- Error inesperado durante el render -->
+    <app-error mensaje="Error inesperado al cargar la vista"></app-error>
+  }
 
 </section>

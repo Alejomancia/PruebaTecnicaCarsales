@@ -179,3 +179,17 @@ button:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
 }
+
+.filters select {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background-color: #fff;
+}
+
+.filters select:focus {
+  outline: none;
+  border-color: #1976d2;
+}
+
