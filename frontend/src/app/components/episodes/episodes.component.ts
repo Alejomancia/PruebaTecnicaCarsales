@@ -1,23 +1,37 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EpisodesService, Episode } from '../../services/episodes.service';
+import { CharactersService, CharacterDto } from '../../services/character.service';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { CharactersService } from '../../services/character.service';
 import { forkJoin, of } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ErrorComponent } from '../error/error.component';
+
+/**
+ * Modelo usado SOLO por la vista
+ * (no representa el contrato del backend)
+ */
+interface EpisodeView {
+  id: number;
+  name: string;
+  airDate?: string;
+  episode?: string;
+  characters?: CharacterDto[];
+}
 
 @Component({
   selector: 'app-episodes',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, FormsModule],
+  imports: [CommonModule, HttpClientModule, FormsModule, ErrorComponent],
   templateUrl: './episodes.component.html',
   styleUrls: ['./episodes.component.css']
 })
 export class EpisodesComponent {
+
   page = signal(1);
   totalPages = signal(1);
-  episodes = signal<Episode[]>([]);
+  episodes = signal<EpisodeView[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
 
@@ -28,83 +42,105 @@ export class EpisodesComponent {
   filterCharacter = signal('');
 
   constructor(
-    private svc: EpisodesService,
-    private charSvc: CharactersService
+    private episodesService: EpisodesService,
+    private charactersService: CharactersService
   ) {
     this.load();
   }
 
+  /**
+   * Carga episodios y resuelve los personajes
+   */
   load(pageNumber = this.page()) {
     this.loading.set(true);
     this.error.set(null);
 
-    this.svc.getEpisodes(pageNumber).subscribe({
+    this.episodesService.getEpisodes(pageNumber).subscribe({
       next: res => {
-        // Convertir personajes de URL → Nombre
-        const epRequests = res.episodes.map(ep => {
+
+        const requests = res.episodes.map(ep => {
           if (!ep.characters || ep.characters.length === 0) {
-            return of(ep);
+            return of({
+              ...ep,
+              characters: []
+            } as EpisodeView);
           }
 
-          return this.charSvc.getCharacterNames(ep.characters).pipe(
-            map(names => ({
-              ...ep,
-              characters: names
+          return this.charactersService.getCharacters(ep.characters).pipe(
+            map(chars => ({
+              id: ep.id,
+              name: ep.name,
+              airDate: ep.airDate,
+              episode: ep.episode,
+              characters: chars
             }))
           );
         });
 
-        forkJoin(epRequests).subscribe({
+        forkJoin(requests).subscribe({
           next: finalEpisodes => {
             this.episodes.set(finalEpisodes);
             this.page.set(res.page);
             this.totalPages.set(res.totalPages);
             this.loading.set(false);
           },
-
-          error: err => {
-            console.error(err);
-            this.error.set('Error procesando personajes');
+          error: () => {
+            this.error.set('Error al procesar los personajes');
             this.loading.set(false);
           }
         });
       },
-
-      error: err => {
-        console.error(err);
-        this.error.set('No se pudo cargar episodios');
+      error: () => {
+        this.error.set('No se pudieron cargar los episodios');
         this.loading.set(false);
       }
     });
   }
 
-  // ⬅️ PAGINACIÓN
   prev() {
-    const p = this.page() - 1;
-    if (p >= 1) this.load(p);
+    if (this.page() > 1) {
+      this.load(this.page() - 1);
+    }
   }
 
   next() {
-    const p = this.page() + 1;
-    if (p <= this.totalPages()) this.load(p);
+    if (this.page() < this.totalPages()) {
+      this.load(this.page() + 1);
+    }
   }
 
-  // ⬅️ FILTRO PRINCIPAL USANDO SEÑALES Y DATOS PROCESADOS
+  /**
+   * Limpia todos los filtros de búsqueda
+   */
+  limpiarFiltros() {
+    this.filterName.set('');
+    this.filterSeason.set('');
+    this.filterAirDate.set('');
+    this.filterCharacter.set('');
+  }
+
   get filteredEpisodes() {
     return this.episodes().filter(ep =>
-      (!this.filterName() ||
-        ep.name?.toLowerCase().includes(this.filterName().toLowerCase())) &&
-
-      (!this.filterSeason() ||
-        ep.episode?.toLowerCase().includes(this.filterSeason().toLowerCase())) &&
-
-      (!this.filterAirDate() ||
-        ep.airDate?.toLowerCase().includes(this.filterAirDate().toLowerCase())) &&
-
+      (!this.filterName() || ep.name.toLowerCase().includes(this.filterName().toLowerCase())) &&
+      (!this.filterSeason() || ep.episode?.includes(this.filterSeason())) &&
+      (!this.filterAirDate() || ep.airDate?.includes(this.filterAirDate())) &&
       (!this.filterCharacter() ||
         ep.characters?.some(c =>
-          c.toLowerCase().includes(this.filterCharacter().toLowerCase())
+          c.name.toLowerCase().includes(this.filterCharacter().toLowerCase())
         ))
     );
   }
+
+  formatFecha(fecha?: string): string {
+    if (!fecha) return 'Fecha no disponible';
+
+    return new Date(fecha).toLocaleDateString('es-CL', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
+  }
+
+
+
 }

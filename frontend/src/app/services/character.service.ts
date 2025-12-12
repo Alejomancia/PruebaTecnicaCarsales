@@ -40,4 +40,20 @@ export class CharactersService {
       )
     );
   }
+
+    /** Obtiene el detalle completo de personajes (nombre, imagen, etc.) */
+  getCharacters(urls: string[]): Observable<CharacterDto[]> {
+    if (!urls || urls.length === 0) {
+      return of([]);
+    }
+
+    const requests = urls.map(url => this.getCharacter(url));
+
+    return forkJoin(requests).pipe(
+      map(chars =>
+        chars.filter((c): c is CharacterDto => c !== null)
+      )
+    );
+  }
+
 }

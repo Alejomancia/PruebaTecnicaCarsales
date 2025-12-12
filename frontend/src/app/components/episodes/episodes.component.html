@@ -1,60 +1,145 @@
-<section>
-  <h2>Episodes (page {{ page() }} / {{ totalPages() }})</h2>
+<section class="episodes-container">
 
-  <!-- Filtros -->
-  <div style="margin-bottom: 1rem;">
+  <!-- ========================= -->
+  <!-- TÍTULO -->
+  <!-- ========================= -->
+  <h2>
+    Episodios (página {{ page() }} de {{ totalPages() }})
+  </h2>
+
+  <!-- ========================= -->
+  <!-- FILTROS DE BÚSQUEDA -->
+  <!-- ========================= -->
+  <div class="filters">
+
     <input
       type="text"
-      placeholder="Buscar por nombre"
+      placeholder="Buscar por nombre del episodio"
+      [disabled]="loading()"
       [ngModel]="filterName()"
       (ngModelChange)="filterName.set($event)"
     />
+
     <input
       type="text"
       placeholder="Buscar por temporada (S01, S02...)"
+      [disabled]="loading()"
       [ngModel]="filterSeason()"
       (ngModelChange)="filterSeason.set($event)"
     />
+
     <input
       type="text"
-      placeholder="Buscar por fecha (December 2, 2013)"
+      placeholder="Buscar por fecha de emisión"
+      [disabled]="loading()"
       [ngModel]="filterAirDate()"
       (ngModelChange)="filterAirDate.set($event)"
     />
+
     <input
       type="text"
       placeholder="Buscar por personaje"
+      [disabled]="loading()"
       [ngModel]="filterCharacter()"
       (ngModelChange)="filterCharacter.set($event)"
     />
+
   </div>
 
-  <!-- Loading -->
-  <div *ngIf="loading(); else content">Loading...</div>
+  <!-- Botón limpiar filtros -->
+  <div class="filters-actions">
+    <button
+      type="button"
+      (click)="limpiarFiltros()"
+      [disabled]="loading()">
+      Limpiar filtros
+    </button>
+  </div>
 
-  <ng-template #content>
-    <!-- Error -->
-    <div *ngIf="error(); else list">
-      <p>{{ error() }}</p>
-    </div>
+  <!-- ========================= -->
+  <!-- ESTADO DE CARGA -->
+  <!-- ========================= -->
+  <div *ngIf="loading()" class="loading">
+    Cargando episodios...
+  </div>
 
-    <!-- Lista de episodios -->
-    <ng-template #list>
-      <ul>
-        <li *ngFor="let e of filteredEpisodes">
-          <strong>{{ e.id }} — {{ e.name }}</strong>
-          <div>{{ e.episode }} — {{ e.airDate }}</div>
-          <div *ngIf="e.characters?.length">
-          Characters: {{ e.characters?.join(', ') || 'N/A' }}
+  <!-- ========================= -->
+  <!-- MENSAJE DE ERROR -->
+  <!-- ========================= -->
+  <app-error
+    *ngIf="error()"
+    [mensaje]="error()">
+  </app-error>
+
+  <!-- ========================= -->
+  <!-- SIN RESULTADOS -->
+  <!-- ========================= -->
+  <div
+    *ngIf="!loading() && !error() && filteredEpisodes.length === 0"
+    class="no-results">
+    No se encontraron episodios con los filtros aplicados.
+  </div>
+
+  <!-- ========================= -->
+  <!-- LISTA DE EPISODIOS -->
+  <!-- ========================= -->
+  <ul *ngIf="filteredEpisodes.length > 0">
+
+    <li *ngFor="let e of filteredEpisodes" class="episode-card">
+
+      <h3>{{ e.name }}</h3>
+
+      <p class="episode-info">
+        {{ e.episode }} — {{ formatFecha(e.airDate) }}
+      </p>
+
+      <!-- ========================= -->
+      <!-- PERSONAJES -->
+      <!-- ========================= -->
+      <div
+        *ngIf="e.characters?.length"
+        class="characters-container">
+
+        <h4>Personajes</h4>
+
+        <div class="characters-grid">
+
+          <div
+            class="character-card"
+            *ngFor="let c of e.characters">
+
+            <img
+              [src]="c.image"
+              [alt]="c.name"
+            />
+
+            <span>{{ c.name }}</span>
+
           </div>
-        </li>
-      </ul>
-
-      <!-- Paginación -->
-      <div style="margin-top: 1rem;">
-        <button (click)="prev()" [disabled]="page() <= 1">Prev</button>
-        <button (click)="next()" [disabled]="page() >= totalPages()">Next</button>
+        </div>
       </div>
-    </ng-template>
-  </ng-template>
+
+    </li>
+
+  </ul>
+
+  <!-- ========================= -->
+  <!-- PAGINACIÓN -->
+  <!-- ========================= -->
+  <div class="pagination">
+
+    <button
+      (click)="prev()"
+      [disabled]="page() <= 1 || loading()">
+      Anterior
+    </button>
+
+    <button
+      (click)="next()"
+      [disabled]="page() >= totalPages() || loading()">
+      Siguiente
+    </button>
+
+  </div>
+
 </section>

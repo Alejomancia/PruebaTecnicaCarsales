@@ -1,6 +1,181 @@
-/* CSS simple, sin frameworks */
-section { padding: 1rem; }
-ul { list-style: none; padding: 0; }
-li { margin-bottom: 0.75rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem; }
-button { margin: 0.25rem; padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid #ccc; background: white; }
-button[disabled] { opacity: 0.5; cursor: not-allowed; }
+/* =========================
+   CONTENEDOR GENERAL
+   ========================= */
+section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* =========================
+   TÍTULO
+   ========================= */
+h2 {
+  margin-bottom: 1.5rem;
+  color: #222;
+}
+
+/* =========================
+   FILTROS
+   ========================= */
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.filters input {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.filters input:focus {
+  outline: none;
+  border-color: #1976d2;
+}
+
+/* =========================
+   ACCIONES DE FILTRO
+   ========================= */
+.filters-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
+
+.filters-actions button {
+  background-color: #eeeeee;
+  color: #333;
+  border: 1px solid #ccc;
+}
+
+.filters-actions button:hover {
+  background-color: #e0e0e0;
+}
+
+/* =========================
+   LISTA DE EPISODIOS
+   ========================= */
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #fafafa;
+}
+
+/* =========================
+   INFO EPISODIO
+   ========================= */
+li strong {
+  font-size: 1.05rem;
+  color: #111;
+}
+
+li > div {
+  margin-top: 0.3rem;
+  color: #444;
+}
+
+/* =========================
+   PERSONAJES
+   ========================= */
+.characters-container {
+  margin-top: 0.75rem;
+}
+
+.characters-container h4 {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.characters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 0.75rem;
+}
+
+.character-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.character-card img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ccc;
+  margin-bottom: 0.25rem;
+}
+
+/* =========================
+   PAGINACIÓN
+   ========================= */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+button {
+  padding: 0.4rem 0.9rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #1976d2;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+/* =========================
+   ACCIONES DE FILTRO
+   ========================= */
+.filters-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+  padding-top: 0.5rem;
+}
+
+/* Botón limpiar filtros */
+.filters-actions button {
+  background-color: #f44336; /* rojo visible */
+  color: #ffffff;
+  border: none;
+  padding: 0.45rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* Hover */
+.filters-actions button:hover {
+  background-color: #d32f2f;
+}
+
+/* Deshabilitado */
+.filters-actions button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

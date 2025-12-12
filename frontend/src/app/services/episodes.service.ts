@@ -8,6 +8,8 @@ export interface Episode {
   name: string;
   airDate?: string;
   episode?: string;
+
+  // URLs de personajes (contrato con backend)
   characters?: string[];
 }
 
@@ -20,8 +22,8 @@ export interface EpisodesPage {
 
 @Injectable({ providedIn: 'root' })
 export class EpisodesService {
-  private base = `${environment.apiUrl}api/Episodes`;
 
+  private base = `${environment.apiUrl}api/Episodes`;
 
   constructor(private http: HttpClient) {}
 
