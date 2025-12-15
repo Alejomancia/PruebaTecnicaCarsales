@@ -31,6 +31,7 @@ builder.Services.AddHttpClient("RickAndMorty", client =>
 
 // Inyección de dependencias
 builder.Services.AddScoped<IRickAndMortyClient, RickAndMortyClient>();
+builder.Services.AddScoped<IEpisodeRepository, EpisodeRepository>();
 builder.Services.AddScoped<IEpisodesService, EpisodesService>();
 
 var app = builder.Build();
