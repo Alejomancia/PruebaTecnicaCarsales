@@ -3,14 +3,24 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
 
+/**
+ * Contrato alineado al backend (BFF)
+ */
+export interface CharacterDto {
+  id: number;
+  name: string;
+  status?: string;
+  species?: string;
+  gender?: string;
+  image?: string;
+}
+
 export interface Episode {
   id: number;
   name: string;
   airDate?: string;
   episode?: string;
-
-  // URLs de personajes (contrato con backend)
-  characters?: string[];
+  characters: CharacterDto[]; // ✅ YA NO URLs
 }
 
 export interface EpisodesPage {

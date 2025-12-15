@@ -17,4 +17,20 @@ public class RickAndMortyClient : IRickAndMortyClient
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadAsStringAsync();
     }
+
+    public async Task<string> GetCharactersRawAsync(IEnumerable<string> urls)
+{
+    var client = _httpClientFactory.CreateClient("RickAndMorty");
+
+    // Rick & Morty API permite batch por IDs
+    var ids = urls
+        .Select(u => u.Split('/').Last())
+        .Distinct();
+
+    var resp = await client.GetAsync($"character/{string.Join(",", ids)}");
+    resp.EnsureSuccessStatusCode();
+
+    return await resp.Content.ReadAsStringAsync();
+}
+
 }

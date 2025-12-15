@@ -4,5 +4,5 @@ public class EpisodeDto
     public string? Name { get; set; }
     public string? AirDate { get; set; }
     public string? Episode { get; set; }
-    public string[]? Characters { get; set; }
+    public List<CharacterDto> Characters { get; set; } = new();
 }

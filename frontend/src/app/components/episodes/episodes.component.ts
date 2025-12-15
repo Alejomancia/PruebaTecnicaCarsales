@@ -1,23 +1,29 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EpisodesService, Episode } from '../../services/episodes.service';
-import { CharactersService, CharacterDto } from '../../services/character.service';
+import { EpisodesService } from '../../services/episodes.service';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { forkJoin, of } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { ErrorComponent } from '../error/error.component';
 
 /**
  * Modelo usado SOLO por la vista
- * (no representa el contrato del backend)
+ * (coincide con lo que entrega el backend)
  */
+interface CharacterDto {
+  id: number;
+  name: string;
+  status?: string;
+  species?: string;
+  gender?: string;
+  image?: string;
+}
+
 interface EpisodeView {
   id: number;
   name: string;
   airDate?: string;
   episode?: string;
-  characters?: CharacterDto[];
+  characters: CharacterDto[];
 }
 
 @Component({
@@ -41,7 +47,7 @@ export class EpisodesComponent {
   filterAirDate = signal('');
   filterCharacter = signal('');
 
-  // Temporadas disponibles para el combo
+  // Temporadas disponibles
   seasons = [
     { label: 'Todas', value: '' },
     { label: 'Temporada 1', value: 'S01' },
@@ -51,16 +57,12 @@ export class EpisodesComponent {
     { label: 'Temporada 5', value: 'S05' }
   ];
 
-
-  constructor(
-    private episodesService: EpisodesService,
-    private charactersService: CharactersService
-  ) {
+  constructor(private episodesService: EpisodesService) {
     this.load();
   }
 
   /**
-   * Carga episodios y resuelve los personajes
+   * Carga episodios desde el BFF
    */
   load(pageNumber = this.page()) {
     this.loading.set(true);
@@ -68,38 +70,10 @@ export class EpisodesComponent {
 
     this.episodesService.getEpisodes(pageNumber).subscribe({
       next: res => {
-
-        const requests = res.episodes.map(ep => {
-          if (!ep.characters || ep.characters.length === 0) {
-            return of({
-              ...ep,
-              characters: []
-            } as EpisodeView);
-          }
-
-          return this.charactersService.getCharacters(ep.characters).pipe(
-            map(chars => ({
-              id: ep.id,
-              name: ep.name,
-              airDate: ep.airDate,
-              episode: ep.episode,
-              characters: chars
-            }))
-          );
-        });
-
-        forkJoin(requests).subscribe({
-          next: finalEpisodes => {
-            this.episodes.set(finalEpisodes);
-            this.page.set(res.page);
-            this.totalPages.set(res.totalPages);
-            this.loading.set(false);
-          },
-          error: () => {
-            this.error.set('Error al procesar los personajes');
-            this.loading.set(false);
-          }
-        });
+        this.episodes.set(res.episodes);
+        this.page.set(res.page);
+        this.totalPages.set(res.totalPages);
+        this.loading.set(false);
       },
       error: () => {
         this.error.set('No se pudieron cargar los episodios');
@@ -122,10 +96,6 @@ export class EpisodesComponent {
     }
   }
 
-
-  /**
-   * Limpia todos los filtros de búsqueda
-   */
   limpiarFiltros() {
     this.filterName.set('');
     this.filterSeason.set('');
@@ -139,7 +109,7 @@ export class EpisodesComponent {
       (!this.filterSeason() || ep.episode?.includes(this.filterSeason())) &&
       (!this.filterAirDate() || ep.airDate?.includes(this.filterAirDate())) &&
       (!this.filterCharacter() ||
-        ep.characters?.some(c =>
+        ep.characters.some(c =>
           c.name.toLowerCase().includes(this.filterCharacter().toLowerCase())
         ))
     );
@@ -155,18 +125,10 @@ export class EpisodesComponent {
     });
   }
 
-  /**
-   * Hace scroll suave hacia el inicio de la página
-   * Se usa al cambiar de página para mejorar la experiencia de usuario
-   */
   scrollToTop(): void {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     });
   }
-
-
-
-
 }
